@@ -7,29 +7,30 @@ body{
     font-family:"Trebuchet MS", Helvetica, sans-serif;
 }
 #main{
-    width: 800px;
+    width: 225px;
     margin: 0 auto;
     background-color:#FFFFFF;
     padding:24px; /* all */
     /*padding:26px 54px 12px 36px; /* top right bottom left */
     /*padding:26px 54px ; /* top-bottom  left-right*/
+    text-align: center;
 }
 #calculator{
-    border: solid 1px #999999;
-    background-color: #99CCFF;
-    padding: 12px;
+    border: solid 1px #000066;
+    background-color: 	#003366;
+    padding: 6px;
     margin: 12px 0px ;
     border-radius: 12px;
-    width: 250px;
+    width: 200px;
 }
 #body{
     border: solid 1px #999999;
-    background-color:#CCFFFF;
-    padding: 12px;
+    background-color:#000033;
+    padding: 10px;
 }
 #display{
     background-color: #FFFFFF;
-    padding: 12px;
+
 }
 #numInput{
     width: 100%;
@@ -50,10 +51,11 @@ body{
     display: inline-block;
 }
 .zero-btn {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding: 10px;
+    margin-bottom: 6px;
     margin-right: 3px;
-    width: 89px;
+    width: 40px;
+    text-align: center;
 }
 
 .operator {
@@ -61,13 +63,21 @@ body{
 }
 
 .equal-btn{
-    padding-top: 33px;
-    padding-bottom: 32px;
+    padding: 10px;
+    margin-bottom: 6px;
     margin-right: 3px;
     width: 40px;
-    display: inline-block;
+    text-align: center;
 }
 
+.clear-btn{
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    margin-right: 3px;
+    width: 168px;
+    text-align: center;
+}
 .inline-block {
     display: inline-block;
     height: 92px;
