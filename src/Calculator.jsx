@@ -1,62 +1,137 @@
 import React, { Component } from "react";
 import "./calculator.css";
+import { join } from "path";
 
-var numA = "";
-var numB = "";
-var operator = "";
+const API_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:4000"
+    : "https://pomegranate-calc-api.herokuapp.com";
+
+const DISPLAY_TYPE = {
+  NUMA: "numA",
+  NUMB: "numB",
+  OPERATOR: "operator",
+  RESULT: "result",
+  ERROR: "error"
+};
 
 class Calculator extends Component {
   constructor(props) {
     super(props);
     this.onNumClick = this.onNumClick.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.setOperator = this.setOperator.bind(this);
+    this.getValuefromApi = this.getValuefromApi.bind(this);
+    this.canEnableDecimal = this.canEnableDecimal.bind(this);
+
+    this.state = {
+      numA: "",
+      numB: "",
+      operator: "",
+      display: "",
+      result: ""
+    };
   }
 
   reset() {
-    operator = "";
-    numA = "";
-    numB = "";
+    this.setState({
+      numA: "",
+      numB: "",
+      operator: ""
+    });
   }
 
   onNumClick(numValue) {
     var numString = numValue.toString();
-    operator ? (numB += numString) : (numA += numString);
-    console.log("First Number is... ", numA);
-    console.log("Operator is... ", operator);
-    console.log("Second Number is... ", numB);
+    const { operator, numB, numA } = this.state;
+    operator
+      ? this.setState({ numB: numB + numString, display: DISPLAY_TYPE.NUMB })
+      : this.setState({ numA: numA + numString, display: DISPLAY_TYPE.NUMA });
+  }
+  setOperator(opValue) {
+    this.setState({ operator: opValue, display: DISPLAY_TYPE.OPERATOR });
   }
 
-  onOperatorClick(opValue) {
+  getDisplay() {
+    const { display } = this.state;
+    return this.state[display];
+  }
+
+  getValuefromApi(endpoint) {
+    fetch(API_URL + endpoint)
+      .then(r => r.json())
+      .then(responseJSON =>
+        this.setState({
+          result: responseJSON.result,
+          display: DISPLAY_TYPE.RESULT
+        })
+      )
+      .catch(e => this.setState({
+        result: 'Error',
+        display: DISPLAY_TYPE.RESULT
+      }));
+  }
+
+  onSubmit() {
+    const { operator, numB, numA } = this.state;
     var numberA = Number(numA);
     var numberB = Number(numB);
-    switch (opValue) {
+    switch (operator) {
       case "+":
-        console.log(numberA + numberB);
+        this.getValuefromApi(
+          `/add?firstNumber=${numberA}&secondNumber=${numberB}`
+        );
         this.reset();
         break;
       case "-":
-        console.log(numberA - numberB);
+        this.getValuefromApi(
+          `/subtract?firstNumber=${numberA}&secondNumber=${numberB}`
+        );
         this.reset();
         break;
       case "/":
-        console.log(numberA / numberB);
+        this.getValuefromApi(
+          `/divide?firstNumber=${numberA}&secondNumber=${numberB}`
+        );
         this.reset();
         break;
       case "*":
-        console.log(numberA * numberB);
+        this.getValuefromApi(
+          `/multiply?firstNumber=${numberA}&secondNumber=${numberB}`
+        );
         this.reset();
         break;
       default:
         console.log("Not a valid operator");
     }
   }
+
+  canEnableDecimal() {
+    const { operator, numB, numA } = this.state;
+    return (operator) ? !numB.match(/\./) : !numA.match(/\./);
+
+   }
+
   render() {
+    const { operator, numA, numB } = this.state;
+
+    const enableOperator = !operator && (`${numA}`.length > 0 && `${numB}`.length === 0);
+    const enableEquals = `${numB}`.length > 0;
+    const enableDecimal = this.canEnableDecimal();
+
+    console.log(enableDecimal, new Date().toString());
+
     return (
       <div className="Calculator">
         <div id="main">
           <h2>Stephanie's Little Calculator</h2>
           <div id="calculator">
             <div id="body">
-              <input type="number" id="numInput" />
+              <div id="output">
+                <div>
+                  <input type="text" id="numInput" value={this.getDisplay()} />
+                </div>
+              </div>
               <div id="display" />
               <div>
                 <button
@@ -95,8 +170,9 @@ class Calculator extends Component {
                 </button>
                 <button
                   onClick={() => {
-                    operator = "/";
+                    this.setOperator("/");
                   }}
+                  disabled={!enableOperator}
                   className="num-btn operator"
                 >
                   /
@@ -129,8 +205,9 @@ class Calculator extends Component {
                 </button>
                 <button
                   onClick={() => {
-                    operator = "*";
+                    this.setOperator("*");
                   }}
+                  disabled={!enableOperator}
                   className="num-btn operator"
                 >
                   *
@@ -163,8 +240,9 @@ class Calculator extends Component {
                 </button>
                 <button
                   onClick={() => {
-                    operator = "+";
+                    this.setOperator("+");
                   }}
+                  disabled={!enableOperator}
                   className="num-btn operator"
                 >
                   +
@@ -173,9 +251,9 @@ class Calculator extends Component {
               <div>
                 <button
                   onClick={() => {
-                    var decimal = ".";
-                    operator ? (numB += decimal) : (numA += decimal);
+                    this.onNumClick(".");
                   }}
+                  disabled={!enableDecimal}
                   className="num-btn operator"
                 >
                   .
@@ -189,18 +267,18 @@ class Calculator extends Component {
                   0
                 </button>
 
-                <button
-                  onClick={() => {
-                    this.onOperatorClick(operator);
-                  }}
+                <button 
+                  onClick={this.onSubmit}
+                  disabled={!enableEquals}
                   className="equal-btn operator"
                 >
                   =
                 </button>
                 <button
                   onClick={() => {
-                    operator = "-";
+                    this.setOperator("-");
                   }}
+                  disabled={!enableOperator}
                   className="num-btn operator"
                 >
                   -
