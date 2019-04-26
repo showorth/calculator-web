@@ -39,6 +39,7 @@ class Calculator extends Component {
       numB: "",
       operator: "",
       result: "",
+      display: "",
     });
   }
 
