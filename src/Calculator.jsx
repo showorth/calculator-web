@@ -37,7 +37,8 @@ class Calculator extends Component {
     this.setState({
       numA: "",
       numB: "",
-      operator: ""
+      operator: "",
+      result: "",
     });
   }
 
