@@ -38,7 +38,7 @@ class Calculator extends Component {
       numA: "",
       numB: "",
       operator: "",
-      result: "",
+      result: ""
     });
   }
 
@@ -67,10 +67,9 @@ class Calculator extends Component {
           display: DISPLAY_TYPE.RESULT
         })
       )
-      .catch(e => this.setState({
-        result: 'Error',
-        display: DISPLAY_TYPE.RESULT
-      }));
+      .catch(e => {
+        this.throwError();
+      });
   }
 
   onSubmit() {
@@ -109,14 +108,39 @@ class Calculator extends Component {
 
   canEnableDecimal() {
     const { operator, numB, numA } = this.state;
-    return (operator) ? !numB.match(/\./) : !numA.match(/\./);
+    return operator ? !numB.match(/\./) : !numA.match(/\./);
+  }
 
-   }
+  keyInputHandler(event) {
+    var input = event.key || "";
+    console.log(input);
+    if(input === "Shift") return;
+
+
+    if (input.match(/[0-9.]/)) {
+      this.onNumClick(input);
+    } else if (input === "=" || input === "Enter") {
+      this.onSubmit();
+    } else if (input.match(/[-+*/]/)) {
+      this.setOperator(input);
+    } else if (input.match(/(Escape|Delete|Backspace)/)) {
+      this.reset();
+    } 
+  }
+
+  throwError() {
+    this.reset();
+    this.setState({
+      result: "Error",
+      display: DISPLAY_TYPE.RESULT
+    });
+  }
 
   render() {
     const { operator, numA, numB } = this.state;
 
-    const enableOperator = !operator && (`${numA}`.length > 0 && `${numB}`.length === 0);
+    const enableOperator =
+      !operator && (`${numA}`.length > 0 && `${numB}`.length === 0);
     const enableEquals = `${numB}`.length > 0;
     const enableDecimal = this.canEnableDecimal();
 
@@ -130,7 +154,14 @@ class Calculator extends Component {
             <div id="body">
               <div id="output">
                 <div>
-                  <input type="text" id="numInput" value={this.getDisplay()} />
+                  <input
+                    type="text"
+                    id="numInput"
+                    onKeyUp={event => {
+                      this.keyInputHandler(event);
+                    }}
+                    value={this.getDisplay()}
+                  />
                 </div>
               </div>
               <div id="display" />
@@ -268,7 +299,7 @@ class Calculator extends Component {
                   0
                 </button>
 
-                <button 
+                <button
                   onClick={this.onSubmit}
                   disabled={!enableEquals}
                   className="equal-btn operator"
